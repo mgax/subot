@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -e
+COMMAND=$1
+shift
+
+case $COMMAND in
+
+  babel-node)
+    exec ./node_modules/.bin/babel-node --presets es2015,stage-0 "$@"
+    ;;
+
+  server)
+    set -x
+    exec ./run babel-node server.js "$@"
+    ;;
+
+  *)
+    echo "Unknown command $COMMAND"
+    ;;
+
+esac
