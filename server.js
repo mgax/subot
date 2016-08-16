@@ -1,6 +1,8 @@
 import express from 'express'
 import {identityServer, messages} from 'subtext'
 
+const SUBOT_SCRIPT = process.env.SUBOT_SCRIPT
+
 function waiter(promise) {
   promise
     .then((rv) => { if(rv !== undefined) console.log(rv) })
@@ -10,6 +12,9 @@ function waiter(promise) {
 waiter((async function() {
   let [varPath, publicUrl] = process.argv.slice(2)
   let server = await identityServer(varPath, publicUrl)
+  let api = {
+    server: server,
+  }
   if(! server.keyPair) {
     console.log('creating keyPair')
     await server.setKeyPair(messages.randomKeyPair())
@@ -28,4 +33,5 @@ waiter((async function() {
   app.use(server.createApp())
   let http = app.listen(+(process.env.PORT || 8000))
   console.log('card url:', server.myCardUrl)
+  if(SUBOT_SCRIPT) require(SUBOT_SCRIPT).default(api)
 })())
