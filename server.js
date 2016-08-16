@@ -14,6 +14,12 @@ waiter((async function() {
   let server = await identityServer(varPath, publicUrl)
   let api = {
     server: server,
+    onMessage: async function(peer, message) {
+      await server.sendMessage(peer, {
+        type: 'Message',
+        text: `You said "${message.text}"`,
+      })
+    },
   }
   if(! server.keyPair) {
     console.log('creating keyPair')
@@ -23,10 +29,7 @@ waiter((async function() {
     waiter((async function() {
       if(me) return
       let peer = await server.getPeer(peerId)
-      await server.sendMessage(peer, {
-        type: 'Message',
-        text: `You said "${message.text}"`,
-      })
+      await api.onMessage(peer, message)
     })())
   })
   let app = express()
